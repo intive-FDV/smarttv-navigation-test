@@ -4,7 +4,8 @@
 @VK_DOWN  or= 40
 
 $(document).keydown (e) ->
-  handleNavigationKey e.target, e.keyCode
+  if handleNavigationKey e.target, e.keyCode
+    e.preventDefault() # Prevent Philips NetTV's default navigation.
 
 # A simple navigation handler. Reads the data-nav-* properties of an element to
 # see where to navigate to. For example, the HTML:
@@ -21,28 +22,38 @@ $(document).keydown (e) ->
 # can be either a selector or an element, and can be set programmatically:
 #
 #    $(someElement).data('navLeft', otherElement)
+#
+# Returns true if the keyCode was a navigation key (and therefore was handled)
+# or false otherwise.
 handleNavigationKey = (el, keyCode) ->
-  direction = directionForKey keyCode
-  return unless el and direction
+  direction = directionForKeys keyCode
+  return false unless el and direction
   nextElSelector = $(el).data(direction)
   if nextElSelector
-    $(nextElSelector).focus()
+    navigateTo $(nextElSelector)
   else
     handleNavigationKey el.parentNode, keyCode
+  true
 
-directionForKey = (keyCode) ->
+directionForKeys = (keyCode) ->
   switch keyCode
     when VK_LEFT  then 'navLeft'
     when VK_RIGHT then 'navRight'
     when VK_UP    then 'navUp'
     when VK_DOWN  then 'navDown'
 
+navigateTo = ($el) ->
+  if $el.is('div')
+    $el.triggerHandler 'focus'
+  else
+    $el.focus()
+
 # The menu remembers which element was last focused.
 lastFocused = null
-$('.menu button').focus ->
+$('.menu .option').focus ->
   lastFocused = @
 $('.menu').focus ->
-  $(lastFocused or '.menu button:first').focus()
+  $(lastFocused or '.menu .option:first').focus()
 
 # The content panel just focuses the first item.
 $('.content').focus ->
@@ -57,8 +68,8 @@ addNavigationData = (elements, direction) ->
     $(el).data(prevDir, elements[i - 1]) if i > 0
     $(el).data(nextDir, elements[i + 1]) if i < elements.length - 1
 
-addNavigationData $('.menu button'), 'vertical'
+addNavigationData $('.menu .option'), 'vertical'
 addNavigationData $('.content .item'), 'horizontal'
 
 # Menu is focused at the start.
-$('.menu').focus()
+navigateTo $('.menu')

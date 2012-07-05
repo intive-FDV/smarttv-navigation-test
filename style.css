@@ -10,7 +10,7 @@ body, html {
   width: 150px;
   height: 100%;
   background-color: #00aa00; }
-  .menu button {
+  .menu .option {
     display: block; }
 
 .content {
@@ -29,6 +29,6 @@ body, html {
 *:focus {
   border: 2px solid white; }
 
-button {
-  background: none;
-  border: none; }
+a {
+  text-decoration: none;
+  color: black; }
