@@ -43,10 +43,15 @@ directionForKeys = (keyCode) ->
     when VK_DOWN  then 'navDown'
 
 navigateTo = ($el) ->
-  if $el.is('div')
-    $el.triggerHandler 'focus'
-  else
+  if isFocusable $el
     $el.focus()
+  else
+    # On some brosers (Samsung) the focus event cannot be triggered on
+    # non-focusable elements, so the attached handlers are called directly.
+    $el.triggerHandler 'focus'
+
+isFocusable = ($el) ->
+  $el.is 'a, input, button, select'
 
 # The menu remembers which element was last focused.
 lastFocused = null
